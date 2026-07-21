@@ -1,0 +1,212 @@
+// Universidad del Valle de Guatemala//
+// BE3029 Electrónica Digital II//
+// Kathy Anzueto 24910//
+// Parte 3 Cambio de Modo//
+
+#include <Arduino.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <driver/gpio.h>
+//----------------------
+// Pines
+//----------------------
+const uint8_t LED1 = 23;
+const uint8_t LED2 = 22;
+const uint8_t LED3 = 21;
+const uint8_t LED4 = 19;
+const uint8_t Boton_A = 5;      // Pull-Up
+const uint8_t Boton_R = 4;      // Pull-Down
+const uint8_t Boton_M = 15;      // Cambiar modo 
+
+//----------------------
+// Variables
+//----------------------
+uint8_t modo = 0;          // 0 = Décadas, 1 = Binario
+uint8_t posicion = 0;
+uint8_t contador = 0;
+uint8_t iniciado = 0;
+
+//----------------------------------
+// Mostrar contador de décadas
+//----------------------------------
+void mostrarLED()
+{
+    digitalWrite(LED1, LOW);
+    digitalWrite(LED2, LOW);
+    digitalWrite(LED3, LOW);
+    digitalWrite(LED4, LOW);
+
+    switch (posicion)
+    {
+        case 0:
+            digitalWrite(LED1, HIGH);
+            break;
+
+        case 1:
+            digitalWrite(LED2, HIGH);
+            break;
+
+        case 2:
+            digitalWrite(LED3, HIGH);
+            break;
+
+        case 3:
+            digitalWrite(LED4, HIGH);
+            break;
+    }
+}
+
+//----------------------------------
+// Mostrar contador binario
+//----------------------------------
+void mostrarBinario(uint8_t numero)
+{
+    digitalWrite(LED1, bitRead(numero, 0));
+    digitalWrite(LED2, bitRead(numero, 1));
+    digitalWrite(LED3, bitRead(numero, 2));
+    digitalWrite(LED4, bitRead(numero, 3));
+}
+
+void setup()
+{
+    pinMode(LED1, OUTPUT);
+    pinMode(LED2, OUTPUT);
+    pinMode(LED3, OUTPUT);
+    pinMode(LED4, OUTPUT);
+
+    pinMode(Boton_A, INPUT);
+    pinMode(Boton_R, INPUT);
+    pinMode(Boton_M, INPUT);
+
+    // Iniciar con todos los LEDs apagados
+    digitalWrite(LED1, LOW);
+    digitalWrite(LED2, LOW);
+    digitalWrite(LED3, LOW);
+    digitalWrite(LED4, LOW);
+}
+
+void loop()
+{
+    //-------------------------
+    // CAMBIAR MODO
+    //-------------------------
+    if (digitalRead(Boton_M) == LOW)   
+    {
+        if (modo == 0)
+        {
+            modo = 1;
+        }
+        else
+        {
+            modo = 0;
+        }
+
+        // Reiniciar ambos contadores
+        contador = 0;
+        posicion = 0;
+        iniciado = 0;
+
+        if (modo == 0)
+        {
+            // Modo décadas inicia con LEDs apagados
+            digitalWrite(LED1, LOW);
+            digitalWrite(LED2, LOW);
+            digitalWrite(LED3, LOW);
+            digitalWrite(LED4, LOW);
+        }
+        else
+        {
+            // Modo binario inicia mostrando 0000
+            mostrarBinario(contador);
+        }
+
+        delay(200);
+
+        // Esperar a soltar el botón
+        while (digitalRead(Boton_M) == LOW);
+    }
+
+    //-------------------------
+    // MODO DÉCADAS
+    //-------------------------
+    if (modo == 0)
+    {
+        if (digitalRead(Boton_A) == LOW)
+        {
+            if (iniciado == 0)
+            {
+                iniciado = 1;
+                posicion = 0;
+            }
+            else
+            {
+                posicion++;
+
+                if (posicion > 3)
+                {
+                    posicion = 0;
+                }
+            }
+
+            mostrarLED();
+            delay(200);
+        }
+
+        if (digitalRead(Boton_R) == HIGH)
+        {
+            if (iniciado == 0)
+            {
+                iniciado = 1;
+                posicion = 3;
+            }
+            else
+            {
+                if (posicion == 0)
+                {
+                    posicion = 3;
+                }
+                else
+                {
+                    posicion--;
+                }
+            }
+
+            mostrarLED();
+            delay(200);
+        }
+    }
+
+    //-------------------------
+    // MODO BINARIO
+    //-------------------------
+    else
+    {
+        if (digitalRead(Boton_A) == LOW)
+        {
+            contador++;
+
+            if (contador > 15)
+            {
+                contador = 0;
+            }
+
+            mostrarBinario(contador);
+            delay(200);
+        }
+
+        if (digitalRead(Boton_R) == HIGH)
+        {
+            if (contador == 0)
+            {
+                contador = 15;
+            }
+            else
+            {
+                contador--;
+            }
+
+            mostrarBinario(contador);
+            delay(200);
+        }
+    }
+} 
