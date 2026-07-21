@@ -1,15 +1,14 @@
 // Universidad del Valle de Guatemala//
 // BE3029 Electrónica Digital II//
 // Kathy Anzueto 24910//
-// Parte 3 Cambio de Modo//
+// Laboratorio 1//
 
 #include <Arduino.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <driver/gpio.h>
-//----------------------
-// Pines
-//----------------------
+
+// Pines//
 const uint8_t LED1 = 23;
 const uint8_t LED2 = 22;
 const uint8_t LED3 = 21;
@@ -18,9 +17,7 @@ const uint8_t Boton_A = 5;      // Pull-Up
 const uint8_t Boton_R = 4;      // Pull-Down
 const uint8_t Boton_M = 15;      // Cambiar modo 
 
-//----------------------
-// Variables
-//----------------------
+// Variables//
 uint8_t modo = 0;          // 0 = Décadas, 1 = Binario
 uint8_t posicion = 0;
 uint8_t contador = 0;
